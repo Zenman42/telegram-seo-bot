@@ -16,15 +16,11 @@
             --tg-theme-secondary-bg-color: #f1f1f1;
         }
         
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background-color: var(--tg-theme-bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--tg-theme-bg-color);
             color: var(--tg-theme-text-color);
             height: 100vh;
             display: flex;
@@ -41,15 +37,7 @@
             justify-content: space-between;
         }
         
-        .header h1 {
-            font-size: 18px;
-            font-weight: 600;
-        }
-        
-        .header-actions {
-            display: flex;
-            gap: 8px;
-        }
+        .header h1 { font-size: 18px; font-weight: 600; }
         
         .header-btn {
             background: none;
@@ -100,10 +88,6 @@
             margin: 8px 0;
         }
         
-        .message-assistant code {
-            font-family: 'SF Mono', Monaco, monospace;
-        }
-        
         .tool-indicator {
             display: flex;
             align-items: center;
@@ -114,11 +98,6 @@
             background: var(--tg-theme-secondary-bg-color);
             border-radius: 8px;
             margin-bottom: 8px;
-        }
-        
-        .tool-indicator .icon {
-            width: 14px;
-            height: 14px;
         }
         
         .typing-indicator {
@@ -153,13 +132,8 @@
             align-items: flex-end;
         }
         
-        .input-wrapper {
-            flex: 1;
-            position: relative;
-        }
-        
         textarea {
-            width: 100%;
+            flex: 1;
             min-height: 40px;
             max-height: 120px;
             padding: 10px 14px;
@@ -171,12 +145,9 @@
             resize: none;
             outline: none;
             font-family: inherit;
-            line-height: 1.4;
         }
         
-        textarea:focus {
-            border-color: var(--tg-theme-button-color);
-        }
+        textarea:focus { border-color: var(--tg-theme-button-color); }
         
         .send-btn {
             width: 40px;
@@ -189,26 +160,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            transition: opacity 0.2s;
         }
         
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .send-btn svg {
-            width: 20px;
-            height: 20px;
-        }
+        .send-btn:disabled { opacity: 0.5; }
+        .send-btn svg { width: 20px; height: 20px; }
         
         .quick-actions {
             padding: 8px 16px;
             display: flex;
             gap: 8px;
             overflow-x: auto;
-            background: var(--tg-theme-bg-color);
         }
         
         .quick-action {
@@ -220,11 +181,6 @@
             font-size: 13px;
             color: var(--tg-theme-text-color);
             cursor: pointer;
-            white-space: nowrap;
-        }
-        
-        .quick-action:active {
-            opacity: 0.7;
         }
         
         .welcome {
@@ -238,233 +194,150 @@
             margin-bottom: 8px;
             color: var(--tg-theme-text-color);
         }
-        
-        .welcome p {
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        /* Scrollbar */
-        .chat-container::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        .chat-container::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .chat-container::-webkit-scrollbar-thumb {
-            background: var(--tg-theme-hint-color);
-            border-radius: 2px;
-        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>🔍 SEO Assistant</h1>
-        <div class="header-actions">
-            <button class="header-btn" onclick="clearChat()">Очистить</button>
-        </div>
+        <button class="header-btn" onclick="clearChat()">Очистить</button>
     </div>
     
     <div class="chat-container" id="chatContainer">
         <div class="welcome">
             <h2>Привет! 👋</h2>
-            <p>Я SEO-ассистент с доступом к инструментам Just-Magic.<br>
-            Могу помочь с кластеризацией семантики, сбором частотности, анализом текстов и многим другим.</p>
+            <p>Я SEO-ассистент с инструментами Just-Magic.<br>
+            Помогу с кластеризацией, частотностью, анализом текстов.</p>
         </div>
     </div>
     
     <div class="quick-actions">
-        <button class="quick-action" onclick="sendQuickMessage('Покажи мои задачи')">📋 Мои задачи</button>
-        <button class="quick-action" onclick="sendQuickMessage('Проверь баланс аккаунта')">💰 Баланс</button>
-        <button class="quick-action" onclick="sendQuickMessage('Как собрать семантику для сайта?')">❓ Помощь</button>
+        <button class="quick-action" onclick="sendQuickMessage('Покажи мои задачи')">📋 Задачи</button>
+        <button class="quick-action" onclick="sendQuickMessage('Проверь баланс')">💰 Баланс</button>
+        <button class="quick-action" onclick="sendQuickMessage('Как собрать семантику?')">❓ Помощь</button>
     </div>
     
     <div class="input-container">
-        <div class="input-wrapper">
-            <textarea 
-                id="messageInput" 
-                placeholder="Введите сообщение..."
-                rows="1"
-                onkeydown="handleKeyDown(event)"
-                oninput="autoResize(this)"
-            ></textarea>
-        </div>
+        <textarea id="messageInput" placeholder="Сообщение..." rows="1" 
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+            oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
         <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-            </svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
     </div>
 
     <script>
-        // Инициализация Telegram WebApp
         const tg = window.Telegram?.WebApp;
         let conversationId = null;
         let isLoading = false;
         
-        // Применяем тему Telegram
         if (tg) {
             tg.ready();
             tg.expand();
-            
-            // Применяем цвета темы
-            const root = document.documentElement;
-            if (tg.themeParams) {
-                const params = tg.themeParams;
-                if (params.bg_color) root.style.setProperty('--tg-theme-bg-color', params.bg_color);
-                if (params.text_color) root.style.setProperty('--tg-theme-text-color', params.text_color);
-                if (params.hint_color) root.style.setProperty('--tg-theme-hint-color', params.hint_color);
-                if (params.link_color) root.style.setProperty('--tg-theme-link-color', params.link_color);
-                if (params.button_color) root.style.setProperty('--tg-theme-button-color', params.button_color);
-                if (params.button_text_color) root.style.setProperty('--tg-theme-button-text-color', params.button_text_color);
-                if (params.secondary_bg_color) root.style.setProperty('--tg-theme-secondary-bg-color', params.secondary_bg_color);
+            const p = tg.themeParams;
+            if (p) {
+                const r = document.documentElement.style;
+                if (p.bg_color) r.setProperty('--tg-theme-bg-color', p.bg_color);
+                if (p.text_color) r.setProperty('--tg-theme-text-color', p.text_color);
+                if (p.hint_color) r.setProperty('--tg-theme-hint-color', p.hint_color);
+                if (p.link_color) r.setProperty('--tg-theme-link-color', p.link_color);
+                if (p.button_color) r.setProperty('--tg-theme-button-color', p.button_color);
+                if (p.button_text_color) r.setProperty('--tg-theme-button-text-color', p.button_text_color);
+                if (p.secondary_bg_color) r.setProperty('--tg-theme-secondary-bg-color', p.secondary_bg_color);
             }
         }
         
-        const chatContainer = document.getElementById('chatContainer');
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
+        const chat = document.getElementById('chatContainer');
+        const input = document.getElementById('messageInput');
+        const btn = document.getElementById('sendBtn');
+        const API = window.location.origin;
         
-        // API URL (будет заменён на реальный при деплое)
-        const API_URL = window.location.origin;
-        
-        function autoResize(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-        }
-        
-        function handleKeyDown(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
-        }
-        
-        function addMessage(content, isUser = false, toolCalls = null) {
-            // Убираем приветствие при первом сообщении
-            const welcome = chatContainer.querySelector('.welcome');
-            if (welcome) welcome.remove();
+        function addMessage(text, isUser, tools) {
+            const w = chat.querySelector('.welcome');
+            if (w) w.remove();
             
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'message-user' : 'message-assistant'}`;
-            
-            if (!isUser && toolCalls && toolCalls.length > 0) {
-                const toolIndicator = document.createElement('div');
-                toolIndicator.className = 'tool-indicator';
-                toolIndicator.innerHTML = `
-                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
-                    </svg>
-                    Использовано инструментов: ${toolCalls.length}
-                `;
-                chatContainer.appendChild(toolIndicator);
+            if (!isUser && tools?.length) {
+                const t = document.createElement('div');
+                t.className = 'tool-indicator';
+                t.textContent = `🔧 Инструментов: ${tools.length}`;
+                chat.appendChild(t);
             }
             
-            // Простое форматирование markdown
-            let formattedContent = content
+            const m = document.createElement('div');
+            m.className = `message ${isUser ? 'message-user' : 'message-assistant'}`;
+            m.innerHTML = text
                 .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
                 .replace(/`([^`]+)`/g, '<code>$1</code>')
                 .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
                 .replace(/\n/g, '<br>');
-            
-            messageDiv.innerHTML = formattedContent;
-            chatContainer.appendChild(messageDiv);
-            
-            // Прокручиваем к последнему сообщению
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            chat.appendChild(m);
+            chat.scrollTop = chat.scrollHeight;
         }
         
         function showTyping() {
-            const typing = document.createElement('div');
-            typing.className = 'typing-indicator';
-            typing.id = 'typingIndicator';
-            typing.innerHTML = '<span></span><span></span><span></span>';
-            chatContainer.appendChild(typing);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            const t = document.createElement('div');
+            t.className = 'typing-indicator';
+            t.id = 'typing';
+            t.innerHTML = '<span></span><span></span><span></span>';
+            chat.appendChild(t);
+            chat.scrollTop = chat.scrollHeight;
         }
         
         function hideTyping() {
-            const typing = document.getElementById('typingIndicator');
-            if (typing) typing.remove();
+            const t = document.getElementById('typing');
+            if (t) t.remove();
         }
         
         async function sendMessage() {
-            const message = messageInput.value.trim();
-            if (!message || isLoading) return;
+            const msg = input.value.trim();
+            if (!msg || isLoading) return;
             
-            // Добавляем сообщение пользователя
-            addMessage(message, true);
-            messageInput.value = '';
-            autoResize(messageInput);
+            addMessage(msg, true);
+            input.value = '';
+            input.style.height = 'auto';
             
-            // Блокируем отправку
             isLoading = true;
-            sendBtn.disabled = true;
+            btn.disabled = true;
             showTyping();
             
             try {
-                const response = await fetch(`${API_URL}/api/chat`, {
+                const res = await fetch(`${API}/api/chat`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
-                        message: message,
+                        message: msg,
                         user_id: tg?.initDataUnsafe?.user?.id?.toString(),
                         conversation_id: conversationId
                     })
                 });
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-                const data = await response.json();
+                const data = await res.json();
                 conversationId = data.conversation_id;
-                
                 hideTyping();
                 addMessage(data.response, false, data.tool_calls);
-                
-            } catch (error) {
+            } catch (e) {
                 hideTyping();
-                addMessage(`❌ Ошибка: ${error.message}`, false);
+                addMessage(`❌ Ошибка: ${e.message}`, false);
             } finally {
                 isLoading = false;
-                sendBtn.disabled = false;
-                messageInput.focus();
+                btn.disabled = false;
+                input.focus();
             }
         }
         
-        function sendQuickMessage(message) {
-            messageInput.value = message;
+        function sendQuickMessage(msg) {
+            input.value = msg;
             sendMessage();
         }
         
         async function clearChat() {
             if (conversationId) {
-                try {
-                    await fetch(`${API_URL}/api/clear?conversation_id=${conversationId}`, {
-                        method: 'POST'
-                    });
-                } catch (e) {
-                    console.error('Clear error:', e);
-                }
+                await fetch(`${API}/api/clear?conversation_id=${conversationId}`, {method: 'POST'}).catch(() => {});
             }
-            
             conversationId = null;
-            chatContainer.innerHTML = `
-                <div class="welcome">
-                    <h2>Привет! 👋</h2>
-                    <p>Я SEO-ассистент с доступом к инструментам Just-Magic.<br>
-                    Могу помочь с кластеризацией семантики, сбором частотности, анализом текстов и многим другим.</p>
-                </div>
-            `;
+            chat.innerHTML = `<div class="welcome"><h2>Привет! 👋</h2><p>Я SEO-ассистент с инструментами Just-Magic.</p></div>`;
         }
         
-        // Фокус на инпут при загрузке
-        messageInput.focus();
+        input.focus();
     </script>
 </body>
 </html>
