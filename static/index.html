@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SEO Assistant</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --tg-theme-bg-color: #ffffff;
+            --tg-theme-text-color: #000000;
+            --tg-theme-hint-color: #999999;
+            --tg-theme-link-color: #2481cc;
+            --tg-theme-button-color: #2481cc;
+            --tg-theme-button-text-color: #ffffff;
+            --tg-theme-secondary-bg-color: #f1f1f1;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            padding: 12px 16px;
+            background: var(--tg-theme-secondary-bg-color);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header h1 { font-size: 18px; font-weight: 600; }
+        
+        .header-btn {
+            background: none;
+            border: none;
+            color: var(--tg-theme-link-color);
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .message {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            line-height: 1.4;
+            font-size: 15px;
+            word-wrap: break-word;
+        }
+        
+        .message-user {
+            align-self: flex-end;
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message-assistant {
+            align-self: flex-start;
+            background: var(--tg-theme-secondary-bg-color);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message-assistant pre {
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 13px;
+            margin: 8px 0;
+        }
+        
+        .tool-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--tg-theme-hint-color);
+            padding: 4px 8px;
+            background: var(--tg-theme-secondary-bg-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            align-self: flex-start;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--tg-theme-hint-color);
+            border-radius: 50%;
+            animation: typing 1.4s infinite both;
+        }
+        
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
+        
+        .input-container {
+            padding: 12px 16px;
+            background: var(--tg-theme-bg-color);
+            border-top: 1px solid rgba(0,0,0,0.1);
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+        
+        textarea {
+            flex: 1;
+            min-height: 40px;
+            max-height: 120px;
+            padding: 10px 14px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 20px;
+            background: var(--tg-theme-secondary-bg-color);
+            color: var(--tg-theme-text-color);
+            font-size: 15px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+        
+        textarea:focus { border-color: var(--tg-theme-button-color); }
+        
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .send-btn:disabled { opacity: 0.5; }
+        .send-btn svg { width: 20px; height: 20px; }
+        
+        .quick-actions {
+            padding: 8px 16px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+        }
+        
+        .quick-action {
+            flex-shrink: 0;
+            padding: 8px 12px;
+            background: var(--tg-theme-secondary-bg-color);
+            border: none;
+            border-radius: 16px;
+            font-size: 13px;
+            color: var(--tg-theme-text-color);
+            cursor: pointer;
+        }
+        
+        .welcome {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--tg-theme-hint-color);
+        }
+        
+        .welcome h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: var(--tg-theme-text-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 SEO Assistant</h1>
+        <button class="header-btn" onclick="clearChat()">Очистить</button>
+    </div>
+    
+    <div class="chat-container" id="chatContainer">
+        <div class="welcome">
+            <h2>Привет! 👋</h2>
+            <p>Я SEO-ассистент с инструментами Just-Magic.<br>
+            Помогу с кластеризацией, частотностью, анализом текстов.</p>
+        </div>
+    </div>
+    
+    <div class="quick-actions">
+        <button class="quick-action" onclick="sendQuickMessage('Покажи мои задачи')">📋 Задачи</button>
+        <button class="quick-action" onclick="sendQuickMessage('Проверь баланс')">💰 Баланс</button>
+        <button class="quick-action" onclick="sendQuickMessage('Как собрать семантику?')">❓ Помощь</button>
+    </div>
+    
+    <div class="input-container">
+        <textarea id="messageInput" placeholder="Сообщение..." rows="1" 
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+            oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+    </div>
+
+    <script>
+        const tg = window.Telegram?.WebApp;
+        let conversationId = null;
+        let isLoading = false;
+        
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            const p = tg.themeParams;
+            if (p) {
+                const r = document.documentElement.style;
+                if (p.bg_color) r.setProperty('--tg-theme-bg-color', p.bg_color);
+                if (p.text_color) r.setProperty('--tg-theme-text-color', p.text_color);
+                if (p.hint_color) r.setProperty('--tg-theme-hint-color', p.hint_color);
+                if (p.link_color) r.setProperty('--tg-theme-link-color', p.link_color);
+                if (p.button_color) r.setProperty('--tg-theme-button-color', p.button_color);
+                if (p.button_text_color) r.setProperty('--tg-theme-button-text-color', p.button_text_color);
+                if (p.secondary_bg_color) r.setProperty('--tg-theme-secondary-bg-color', p.secondary_bg_color);
+            }
+        }
+        
+        const chat = document.getElementById('chatContainer');
+        const input = document.getElementById('messageInput');
+        const btn = document.getElementById('sendBtn');
+        const API = window.location.origin;
+        
+        function addMessage(text, isUser, tools) {
+            const w = chat.querySelector('.welcome');
+            if (w) w.remove();
+            
+            if (!isUser && tools?.length) {
+                const t = document.createElement('div');
+                t.className = 'tool-indicator';
+                t.textContent = `🔧 Инструментов: ${tools.length}`;
+                chat.appendChild(t);
+            }
+            
+            const m = document.createElement('div');
+            m.className = `message ${isUser ? 'message-user' : 'message-assistant'}`;
+            m.innerHTML = text
+                .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+            chat.appendChild(m);
+            chat.scrollTop = chat.scrollHeight;
+        }
+        
+        function showTyping() {
+            const t = document.createElement('div');
+            t.className = 'typing-indicator';
+            t.id = 'typing';
+            t.innerHTML = '<span></span><span></span><span></span>';
+            chat.appendChild(t);
+            chat.scrollTop = chat.scrollHeight;
+        }
+        
+        function hideTyping() {
+            const t = document.getElementById('typing');
+            if (t) t.remove();
+        }
+        
+        async function sendMessage() {
+            const msg = input.value.trim();
+            if (!msg || isLoading) return;
+            
+            addMessage(msg, true);
+            input.value = '';
+            input.style.height = 'auto';
+            
+            isLoading = true;
+            btn.disabled = true;
+            showTyping();
+            
+            try {
+                const res = await fetch(`${API}/api/chat`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        message: msg,
+                        user_id: tg?.initDataUnsafe?.user?.id?.toString(),
+                        conversation_id: conversationId
+                    })
+                });
+                
+                const data = await res.json();
+                conversationId = data.conversation_id;
+                hideTyping();
+                addMessage(data.response, false, data.tool_calls);
+            } catch (e) {
+                hideTyping();
+                addMessage(`❌ Ошибка: ${e.message}`, false);
+            } finally {
+                isLoading = false;
+                btn.disabled = false;
+                input.focus();
+            }
+        }
+        
+        function sendQuickMessage(msg) {
+            input.value = msg;
+            sendMessage();
+        }
+        
+        async function clearChat() {
+            if (conversationId) {
+                await fetch(`${API}/api/clear?conversation_id=${conversationId}`, {method: 'POST'}).catch(() => {});
+            }
+            conversationId = null;
+            chat.innerHTML = `<div class="welcome"><h2>Привет! 👋</h2><p>Я SEO-ассистент с инструментами Just-Magic.</p></div>`;
+        }
+        
+        input.focus();
+    </script>
+</body>
+</html>
