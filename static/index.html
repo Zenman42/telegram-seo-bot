@@ -311,12 +311,17 @@
                 });
                 
                 const data = await res.json();
-                conversationId = data.conversation_id;
                 hideTyping();
-                addMessage(data.response, false, data.tool_calls);
+                
+                if (data.error || data.detail) {
+                    addMessage(`❌ ${data.detail || data.error}`, false);
+                } else {
+                    conversationId = data.conversation_id;
+                    addMessage(data.response || 'Пустой ответ', false, data.tool_calls);
+                }
             } catch (e) {
                 hideTyping();
-                addMessage(`❌ Ошибка: ${e.message}`, false);
+                addMessage(`❌ Ошибка сети: ${e.message}`, false);
             } finally {
                 isLoading = false;
                 btn.disabled = false;
